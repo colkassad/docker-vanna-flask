@@ -31,7 +31,7 @@ class OpenAI_Vanna(ChromaDB_VectorStore, OpenAI_Chat):
         ChromaDB_VectorStore.__init__(self, config=config)
         OpenAI_Chat.__init__(self, config=config)
 
-postgres_host = 'db'
+postgres_host = os.environ['POSTGRES_HOST']
 postgres_db = os.environ['POSTGRES_DB']
 postgres_user = os.environ['POSTGRES_USER']
 postgres_password = os.environ['POSTGRES_PASSWORD']

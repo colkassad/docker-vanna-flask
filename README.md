@@ -32,6 +32,8 @@ python app.py
 
 # Docker with postgres, openai, and chromadb support
 
+You can test Vanna using Docker, OpenAI, and Chroma vector database support. Postgres is configured to install some sample Authors and Books data, see `init.sql` for details.
+
 ## Copy env.example to .env and edit .env to suit your system
 ```
 cp env.example .env
