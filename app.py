@@ -7,24 +7,37 @@ import flask
 import os
 from cache import MemoryCache
 
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+from vanna.openai.openai_chat import OpenAI_Chat
+from vanna.chromadb.chromadb_vector import ChromaDB_VectorStore
+
 app = Flask(__name__, static_url_path='')
+
+FLASK_HOST = "127.0.0.1"
+if os.environ.get('FLASK_HOST') is not None:
+    FLASK_HOST = os.environ.get('FLASK_HOST')
+
+FLASK_PORT = 5000
+if os.environ.get('FLASK_PORT') is not None:
+    FLASK_PORT = os.environ.get('FLASK_PORT')
 
 # SETUP
 cache = MemoryCache()
 
-# from vanna.local import LocalContext_OpenAI
-# vn = LocalContext_OpenAI()
+class OpenAI_Vanna(ChromaDB_VectorStore, OpenAI_Chat):
+    def __init__(self, config=None):
+        ChromaDB_VectorStore.__init__(self, config=config)
+        OpenAI_Chat.__init__(self, config=config)
 
-from vanna.remote import VannaDefault
-vn = VannaDefault(model=os.environ['VANNA_MODEL'], api_key=os.environ['VANNA_API_KEY'])
-
-vn.connect_to_snowflake(
-    account=os.environ['SNOWFLAKE_ACCOUNT'],
-    username=os.environ['SNOWFLAKE_USERNAME'],
-    password=os.environ['SNOWFLAKE_PASSWORD'],
-    database=os.environ['SNOWFLAKE_DATABASE'],
-    warehouse=os.environ['SNOWFLAKE_WAREHOUSE'],
-)
+postgres_host = 'db'
+postgres_db = os.environ['POSTGRES_DB']
+postgres_user = os.environ['POSTGRES_USER']
+postgres_password = os.environ['POSTGRES_PASSWORD']
+postgres_port = '5432'
+vn = OpenAI_Vanna(config={'api_key': os.environ['OPENAI_API_KEY'], 'model': os.environ['OPENAI_MODEL']})
+vn.connect_to_postgres(host=postgres_host, dbname=postgres_db, user=postgres_user, password=postgres_password, port=postgres_port)
 
 # NO NEED TO CHANGE ANYTHING BELOW THIS LINE
 def requires_cache(fields):
@@ -81,7 +94,9 @@ def generate_sql():
 @requires_cache(['sql'])
 def run_sql(id: str, sql: str):
     try:
+        logging.debug(f"Running SQL: {sql}")
         df = vn.run_sql(sql=sql)
+        logging.debug(f"SQL finished running.")
 
         cache.set(id=id, field='df', value=df)
 
@@ -210,4 +225,4 @@ def root():
     return app.send_static_file('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host=FLASK_HOST, port=FLASK_PORT)

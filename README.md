@@ -30,3 +30,17 @@ pip install -r requirements.txt
 python app.py
 ```
 
+# Docker with postgres, openai, and chromadb support
+
+## Copy env.example to .env and edit .env to suit your system
+```
+cp env.example .env
+nano .env
+```
+
+## Build and run the docker container
+
+```
+docker compose build && docker compose run
+```
+
