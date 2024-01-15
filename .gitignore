@@ -3,6 +3,3 @@ venv
 .DS_Store
 __pycache__
 chroma.sqlite3
-
-# Ignore directories that look like GUIDs
-[0-9a-fA-F]-[0-9a-fA-F]-[0-9a-fA-F]-[0-9a-fA-F]/
