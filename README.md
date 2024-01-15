@@ -41,6 +41,6 @@ nano .env
 ## Build and run the docker container
 
 ```
-docker compose build && docker compose run
+docker compose build && docker compose up
 ```
 
